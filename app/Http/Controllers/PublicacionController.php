@@ -2,47 +2,42 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Publicacion;
 use Illuminate\Http\Request;
 
 class PublicacionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        //
+        return response()->json(Publicacion::with('rescatista')->orderBy('created_at', 'desc')->get());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'rescatista_id' => 'required|exists:personas,id',
+            'texto' => 'required|string',
+            'imagen_url' => 'nullable|string',
+        ]);
+
+        $publicacion = Publicacion::create($request->all());
+        return response()->json($publicacion->load('rescatista'), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function show(Publicacion $publicacion)
     {
-        //
+        return response()->json($publicacion->load('rescatista'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+    public function update(Request $request, Publicacion $publicacion)
     {
-        //
+        $publicacion->update($request->all());
+        return response()->json($publicacion);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Publicacion $publicacion)
     {
-        //
+        $publicacion->delete();
+        return response()->json(['mensaje' => 'Publicacion eliminada']);
     }
 }
