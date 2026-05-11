@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>RefugioApp — Sistema de Gestión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,600;0,800;1,300&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════
+       VARIABLES & RESET
+    ═══════════════════════════════════ */
+    :root {
+      --cream:    #F5F0E8;
+      --warm:     #EDE5D5;
+      --sand:     #C8B89A;
+      --terracota:#B85C38;
+      --brown:    #6B3D2E;
+      --forest:   #2D4A3E;
+      --sage:     #7A9E7E;
+      --text:     #1A1208;
+      --muted:    #6B5E4E;
+      --border:   #D8CCBA;
+      --white:    #FEFCF8;
+      --danger:   #C0392B;
+      --success:  #27AE60;
+      --warning:  #E67E22;
+
+      --radius:   12px;
+      --shadow:   0 4px 24px rgba(107,61,46,0.10);
+      --shadow-lg:0 8px 40px rgba(107,61,46,0.16);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--cream);
+      color: var(--text);
+      min-height: 100vh;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ═══════════════════════════════════
+       NAV
+    ═══════════════════════════════════ */
+    nav {
+      background: var(--brown);
+      padding: 0 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    }
+
+    .nav-brand {
+      font-family: 'Fraunces', serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--cream);
+      padding: 1rem 2rem 1rem 0;
+      border-right: 1px solid rgba(255,255,255,0.15);
+      margin-right: 1rem;
+      white-space: nowrap;
+    }
+
+    .nav-brand span { color: var(--sand); }
+
+    .nav-tabs {
+      display: flex;
+      flex: 1;
+      gap: 0;
+    }
+
+    .nav-tab {
+      padding: 1rem 1.25rem;
+      color: rgba(245,240,232,0.65);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      transition: all 0.2s;
+      border-bottom: 3px solid transparent;
+      white-space: nowrap;
+    }
+
+    .nav-tab:hover { color: var(--cream); background: rgba(255,255,255,0.06); }
+    .nav-tab.active {
+      color: var(--sand);
+      border-bottom-color: var(--sand);
+      background: rgba(255,255,255,0.08);
+    }
+
+    .nav-user {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .nav-user-info {
+      text-align: right;
+      font-size: 0.8rem;
+      color: rgba(245,240,232,0.7);
+    }
+
+    .nav-user-info strong { display: block; color: var(--cream); font-size: 0.875rem; }
+
+    .btn-logout {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: var(--cream);
+      padding: 0.4rem 0.9rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s;
+    }
+
+    .btn-logout:hover { background: rgba(255,255,255,0.18); }
+
+    /* ═══════════════════════════════════
+       LAYOUT
+    ═══════════════════════════════════ */
+    .page { display: none; padding: 2.5rem 2rem; max-width: 1100px; margin: 0 auto; }
+    .page.active { display: block; animation: fadeIn 0.3s ease; }
+
+    @keyframes fadeIn { from { opacity:0; transform:translateY(6px); } to { opacity:1; transform:translateY(0); } }
+
+    /* ═══════════════════════════════════
+       PAGE HEADERS
+    ═══════════════════════════════════ */
+    .page-header {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .page-title {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 600;
+      color: var(--brown);
+      line-height: 1.2;
+    }
+
+    .page-subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-top: 0.3rem;
+    }
+
+    /* ═══════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════ */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--terracota);
+      color: white;
+      box-shadow: 0 2px 8px rgba(184,92,56,0.30);
+    }
+    .btn-primary:hover { background: var(--brown); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(184,92,56,0.35); }
+
+    .btn-secondary {
+      background: var(--warm);
+      color: var(--brown);
+      border: 1.5px solid var(--border);
+    }
+    .btn-secondary:hover { background: var(--sand); color: var(--white); }
+
+    .btn-success { background: var(--success); color: white; }
+    .btn-success:hover { filter: brightness(1.1); }
+
+    .btn-danger { background: var(--danger); color: white; }
+    .btn-danger:hover { filter: brightness(1.1); }
+
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+    .btn-lg { padding: 0.85rem 1.8rem; font-size: 1rem; }
+
+    /* ═══════════════════════════════════
+       CARDS
+    ═══════════════════════════════════ */
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      transition: box-shadow 0.2s, transform 0.2s;
+    }
+
+    .card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
+
+    .card-body { padding: 1.5rem; }
+
+    .card-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      background: var(--warm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+    }
+
+    /* ═══════════════════════════════════
+       GRIDS
+    ═══════════════════════════════════ */
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 1.5rem; }
+
+    /* ═══════════════════════════════════
+       BADGES / TAGS
+    ═══════════════════════════════════ */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.65rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .badge-available  { background: #D5EDD8; color: #1A6B2A; }
+    .badge-transito   { background: #FEF0D5; color: #925C0D; }
+    .badge-adoptado   { background: #D8EAF8; color: #1A4D7A; }
+    .badge-pendiente  { background: #FEF0D5; color: #925C0D; }
+    .badge-aceptada   { background: #D5EDD8; color: #1A6B2A; }
+    .badge-rechazada  { background: #F8D8D8; color: #7A1A1A; }
+    .badge-urgente    { background: #F8D8D8; color: #7A1A1A; }
+    .badge-rescatista { background: #E8D5ED; color: #5A1A6B; }
+    .badge-adoptante  { background: #D5E8ED; color: #1A4F6B; }
+
+    /* ═══════════════════════════════════
+       FORMS
+    ═══════════════════════════════════ */
+    .form-group { margin-bottom: 1.25rem; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 0.4rem;
+      letter-spacing: 0.02em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.7rem 1rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.9rem;
+      color: var(--text);
+      background: var(--white);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--terracota);
+      box-shadow: 0 0 0 3px rgba(184,92,56,0.12);
+    }
+
+    textarea { resize: vertical; min-height: 100px; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+    .form-error { color: var(--danger); font-size: 0.8rem; margin-top: 0.3rem; display: none; }
+
+    /* ═══════════════════════════════════
+       MODAL
+    ═══════════════════════════════════ */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26,18,8,0.55);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      backdrop-filter: blur(3px);
+    }
+
+    .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+    .modal {
+      background: var(--white);
+      border-radius: 16px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.25);
+    }
+
+    .modal-header {
+      padding: 1.5rem 1.75rem;
+      border-bottom: 1.5px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      background: var(--white);
+    }
+
+    .modal-title {
+      font-family: 'Fraunces', serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--brown);
+    }
+
+    .modal-close {
+      background: var(--warm);
+      border: none;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      transition: all 0.2s;
+    }
+
+    .modal-close:hover { background: var(--sand); color: var(--white); }
+
+    .modal-body { padding: 1.75rem; }
+
+    .modal-footer {
+      padding: 1.25rem 1.75rem;
+      border-top: 1.5px solid var(--border);
+      display: flex;
+      gap: 0.75rem;
+      justify-content: flex-end;
+    }
+
+    /* ═══════════════════════════════════
+       TOAST
+    ═══════════════════════════════════ */
+    #toast-container {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .toast {
+      padding: 0.85rem 1.25rem;
+      border-radius: 10px;
+      color: white;
+      font-size: 0.875rem;
+      font-weight: 500;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      animation: slideIn 0.3s ease;
+      max-width: 340px;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .toast-success { background: var(--forest); }
+    .toast-error   { background: var(--danger); }
+    .toast-info    { background: var(--terracota); }
+
+    @keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+    /* ═══════════════════════════════════
+       LOGIN PAGE
+    ═══════════════════════════════════ */
+    #login-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(107,61,46,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(122,158,126,0.08) 0%, transparent 60%),
+        var(--cream);
+    }
+
+    .login-box {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 3rem;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: var(--shadow-lg);
+      border: 1.5px solid var(--border);
+    }
+
+    .login-logo {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--brown);
+      text-align: center;
+      margin-bottom: 0.25rem;
+    }
+
+    .login-logo span { color: var(--terracota); }
+
+    .login-tagline {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.875rem;
+      margin-bottom: 2rem;
+    }
+
+    .login-divider {
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.8rem;
+      margin: 1rem 0;
+      position: relative;
+    }
+
+    .login-divider::before, .login-divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .login-divider::before { left: 0; }
+    .login-divider::after { right: 0; }
+
+    .login-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border: 1.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+
+    .login-tab {
+      flex: 1;
+      padding: 0.6rem;
+      text-align: center;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      color: var(--muted);
+    }
+
+    .login-tab.active { background: var(--terracota); color: white; }
+
+    /* ═══════════════════════════════════
+       STATS STRIP
+    ═══════════════════════════════════ */
+    .stats-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-family: 'Fraunces', serif;
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--terracota);
+      line-height: 1;
+    }
+
+    .stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; }
+
+    /* ═══════════════════════════════════
+       ANIMAL CARD
+    ═══════════════════════════════════ */
+    .animal-card-img {
+      height: 175px;
+      background: linear-gradient(135deg, var(--warm) 0%, var(--sand) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3.5rem;
+      position: relative;
+    }
+
+    .animal-card-status {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+    }
+
+    .animal-name {
+      font-family: 'Fraunces', serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 0.25rem;
+    }
+
+    .animal-meta {
+      font-size: 0.8rem;
+      color: var(--muted);
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.75rem;
+    }
+
+    .animal-meta span::before { content: '· '; color: var(--sand); }
+    .animal-meta span:first-child::before { content: ''; }
+
+    .animal-actions { display: flex; gap: 0.5rem; margin-top: 1rem; flex-wrap: wrap; }
+
+    /* ═══════════════════════════════════
+       FEED / PUBLICACIONES
+    ═══════════════════════════════════ */
+    .feed { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
+
+    .post-card {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .post-header {
+      padding: 1rem 1.25rem 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--terracota), var(--brown));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .post-author { font-weight: 600; font-size: 0.9rem; color: var(--brown); }
+    .post-date { font-size: 0.78rem; color: var(--muted); }
+
+    .post-tipo {
+      margin-left: auto;
+    }
+
+    .post-body {
+      padding: 0 1.25rem 1rem;
+      font-size: 0.9rem;
+      line-height: 1.65;
+      color: var(--text);
+    }
+
+    .post-img {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      background: var(--warm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      color: var(--sand);
+    }
+
+    .post-footer {
+      padding: 0.75rem 1.25rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    /* ═══════════════════════════════════
+       TABLE
+    ═══════════════════════════════════ */
+    .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1.5px solid var(--border); }
+
+    table { width: 100%; border-collapse: collapse; background: var(--white); }
+
+    th {
+      background: var(--warm);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--brown);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-top: 1px solid var(--border);
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    tr:hover td { background: var(--cream); }
+
+    /* ═══════════════════════════════════
+       SEARCH / FILTER BAR
+    ═══════════════════════════════════ */
+    .filter-bar {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .filter-bar input, .filter-bar select {
+      width: auto;
+      flex: 1;
+      min-width: 160px;
+      max-width: 280px;
+    }
+
+    /* ═══════════════════════════════════
+       LOADING SPINNER
+    ═══════════════════════════════════ */
+    .spinner {
+      width: 36px; height: 36px;
+      border: 3px solid var(--border);
+      border-top-color: var(--terracota);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 3rem auto;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+    }
+
+    .empty-state .icon { font-size: 3rem; margin-bottom: 0.75rem; }
+    .empty-state p { font-size: 0.9rem; }
+
+    /* ═══════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════ */
+    @media (max-width: 700px) {
+      .stats-strip { grid-template-columns: repeat(2, 1fr); }
+      .form-row { grid-template-columns: 1fr; }
+      .nav-user-info { display: none; }
+      .page { padding: 1.5rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══════════════ LOGIN ═══════════════ -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">🐾 Refugio<span>App</span></div>
+    <p class="login-tagline">Sistema de gestión de animales rescatados</p>
+
+    <div class="login-tabs">
+      <div class="login-tab active" onclick="switchAuthTab('login')">Iniciar sesión</div>
+      <div class="login-tab" onclick="switchAuthTab('register')">Registrarse</div>
+    </div>
+
+    <!-- Login Form -->
+    <div id="auth-login">
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="login-email" placeholder="rescatista@ejemplo.com" value="rescatista@ejemplo.com"/>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="login-password" placeholder="Tu contraseña" value="password123"/>
+      </div>
+      <button class="btn btn-primary btn-lg" style="width:100%" onclick="doLogin()">Entrar</button>
+      <p style="text-align:center;font-size:0.78rem;color:var(--muted);margin-top:0.75rem">
+        💡 Demo: cualquier email/contraseña funciona (mock)
+      </p>
+    </div>
+
+    <!-- Register Form -->
+    <div id="auth-register" style="display:none">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre completo</label>
+          <input type="text" id="reg-nombre" placeholder="Tu nombre"/>
+        </div>
+        <div class="form-group">
+          <label>DNI</label>
+          <input type="text" id="reg-dni" placeholder="12345678"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="tu@email.com"/>
+      </div>
+      <div class="form-group">
+        <label>Teléfono</label>
+        <input type="text" id="reg-telefono" placeholder="3512345678"/>
+      </div>
+      <div class="form-group">
+        <label>Rol</label>
+        <select id="reg-rol">
+          <option value="rescatista">Rescatista</option>
+          <option value="adoptante">Adoptante</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="reg-password" placeholder="Mínimo 8 caracteres"/>
+      </div>
+      <button class="btn btn-primary btn-lg" style="width:100%" onclick="doRegister()">Crear cuenta</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ APP SHELL ═══════════════ -->
+<div id="app-shell" style="display:none">
+
+  <nav>
+    <div class="nav-brand">🐾 Refugio<span>App</span></div>
+    <div class="nav-tabs">
+      <div class="nav-tab active" onclick="goTo('animales')">🐶 Animales</div>
+      <div class="nav-tab" onclick="goTo('feed')">📰 Feed</div>
+      <div class="nav-tab" onclick="goTo('casas')">🏠 Casas de Tránsito</div>
+      <div class="nav-tab rescatista-only" onclick="goTo('solicitudes')" style="display:none">📋 Solicitudes</div>
+      <div class="nav-tab rescatista-only" onclick="goTo('perfil')" style="display:none">👤 Mi Perfil</div>
+      <div class="nav-tab adoptante-only" onclick="goTo('mis-solicitudes')" style="display:none">📋 Mis Solicitudes</div>
+    </div>
+    <div class="nav-user">
+      <div class="nav-user-info">
+        <strong id="nav-username">—</strong>
+        <span id="nav-rol">—</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Salir</button>
+    </div>
+  </nav>
+
+  <!-- ── ANIMALES ── -->
+  <div class="page active" id="page-animales">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Animales</div>
+        <div class="page-subtitle">Listado de animales disponibles para adopción</div>
+      </div>
+      <button class="btn btn-primary rescatista-only" onclick="openModalAnimal()" style="display:none">+ Registrar animal</button>
+    </div>
+
+    <div class="stats-strip" id="stats-animales">
+      <div class="stat-card"><div class="stat-number" id="stat-total">—</div><div class="stat-label">Total</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-disponible">—</div><div class="stat-label">Disponibles</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-transito">—</div><div class="stat-label">En tránsito</div></div>
+      <div class="stat-card"><div class="stat-number" id="stat-adoptado">—</div><div class="stat-label">Adoptados</div></div>
+    </div>
+
+    <div class="filter-bar">
+      <input type="text" id="filtro-nombre" placeholder="🔍 Buscar por nombre..." oninput="filtrarAnimales()"/>
+      <select id="filtro-especie" onchange="filtrarAnimales()">
+        <option value="">Todas las especies</option>
+        <option value="perro">Perro</option>
+        <option value="gato">Gato</option>
+        <option value="otro">Otro</option>
+      </select>
+      <select id="filtro-estado" onchange="filtrarAnimales()">
+        <option value="">Todos los estados</option>
+        <option value="disponible">Disponible</option>
+        <option value="en_transito">En tránsito</option>
+        <option value="adoptado">Adoptado</option>
+      </select>
+    </div>
+
+    <div class="grid-3" id="grid-animales">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- ── FEED ── -->
+  <div class="page" id="page-feed">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Feed</div>
+        <div class="page-subtitle">Novedades, urgencias y avances</div>
+      </div>
+      <button class="btn btn-primary rescatista-only" onclick="openModalPost()" style="display:none">+ Nueva publicación</button>
+    </div>
+    <div class="feed" id="feed-container">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- ── CASAS DE TRÁNSITO ── -->
+  <div class="page" id="page-casas">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Casas de Tránsito</div>
+        <div class="page-subtitle">Hogares temporarios para los animales</div>
+      </div>
+      <button class="btn btn-primary rescatista-only" onclick="openModalCasa()" style="display:none">+ Registrar casa</button>
+    </div>
+    <div class="grid-2" id="grid-casas">
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- ── SOLICITUDES (rescatista) ── -->
+  <div class="page" id="page-solicitudes">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Solicitudes de Adopción</div>
+        <div class="page-subtitle">Gestioná las solicitudes recibidas</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Animal</th>
+            <th>Adoptante</th>
+            <th>Fecha</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-solicitudes">
+          <tr><td colspan="5"><div class="spinner"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── MIS SOLICITUDES (adoptante) ── -->
+  <div class="page" id="page-mis-solicitudes">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Mis Solicitudes</div>
+        <div class="page-subtitle">Seguimiento de tus solicitudes de adopción</div>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Animal</th><th>Fecha</th><th>Estado</th></tr>
+        </thead>
+        <tbody id="tbody-mis-solicitudes">
+          <tr><td colspan="3"><div class="spinner"></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ── PERFIL ── -->
+  <div class="page" id="page-perfil">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Mi Perfil</div>
+        <div class="page-subtitle">Tus datos y configuración</div>
+      </div>
+      <button class="btn btn-secondary" onclick="toggleEditPerfil()">✏️ Editar</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;max-width:700px">
+      <div class="card">
+        <div class="card-body">
+          <h3 style="font-family:'Fraunces',serif;color:var(--brown);margin-bottom:1rem">Datos personales</h3>
+          <div id="perfil-view">
+            <p><strong>Nombre:</strong> <span id="p-nombre">—</span></p>
+            <p><strong>Email:</strong> <span id="p-email">—</span></p>
+            <p><strong>Teléfono:</strong> <span id="p-telefono">—</span></p>
+            <p><strong>Rol:</strong> <span id="p-rol">—</span></p>
+          </div>
+          <div id="perfil-edit" style="display:none">
+            <div class="form-group"><label>Nombre</label><input id="edit-nombre"/></div>
+            <div class="form-group"><label>Teléfono</label><input id="edit-telefono"/></div>
+            <button class="btn btn-primary" onclick="guardarPerfil()">Guardar</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-body">
+          <h3 style="font-family:'Fraunces',serif;color:var(--brown);margin-bottom:1rem">Datos bancarios</h3>
+          <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem">Para recibir donaciones directamente</p>
+          <div class="form-group"><label>Alias CBU</label><input id="edit-alias" placeholder="mi.alias.mp"/></div>
+          <div class="form-group"><label>CBU</label><input id="edit-cbu" placeholder="0000003100012345678901"/></div>
+          <button class="btn btn-primary" onclick="guardarBancario()">Guardar datos bancarios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /app-shell -->
+
+<!-- ═══════════════ MODALES ═══════════════ -->
+
+<!-- Modal: Nuevo Animal -->
+<div class="modal-overlay" id="modal-animal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Registrar Animal</div>
+      <button class="modal-close" onclick="closeModal('modal-animal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input id="a-nombre" placeholder="Nombre del animal"/>
+        </div>
+        <div class="form-group">
+          <label>Especie *</label>
+          <select id="a-especie">
+            <option value="perro">Perro</option>
+            <option value="gato">Gato</option>
+            <option value="otro">Otro</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Edad aproximada</label>
+          <input id="a-edad" placeholder="Ej: 2 años, 6 meses"/>
+        </div>
+        <div class="form-group">
+          <label>Tamaño</label>
+          <select id="a-tamano">
+            <option value="pequeño">Pequeño</option>
+            <option value="mediano">Mediano</option>
+            <option value="grande">Grande</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Zona</label>
+        <input id="a-zona" placeholder="Barrio o ciudad"/>
+      </div>
+      <div class="form-group">
+        <label>Estado de salud</label>
+        <textarea id="a-salud" placeholder="Describe el estado de salud del animal..." style="min-height:80px"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-animal')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarAnimal()">Guardar animal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Publicación -->
+<div class="modal-overlay" id="modal-post">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Nueva Publicación</div>
+      <button class="modal-close" onclick="closeModal('modal-post')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Tipo</label>
+        <select id="p-tipo">
+          <option value="novedad">Novedad</option>
+          <option value="urgente">Urgente 🚨</option>
+          <option value="avance">Avance ✨</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Texto *</label>
+        <textarea id="p-texto" placeholder="Contá la novedad, urgencia o avance..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>URL de imagen (opcional)</label>
+        <input id="p-imagen" placeholder="https://..."/>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-post')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarPost()">Publicar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Nueva Casa -->
+<div class="modal-overlay" id="modal-casa">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Registrar Casa de Tránsito</div>
+      <button class="modal-close" onclick="closeModal('modal-casa')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label>Nombre / Responsable *</label>
+        <input id="c-nombre" placeholder="Nombre del hogar transitorio"/>
+      </div>
+      <div class="form-group">
+        <label>Dirección</label>
+        <input id="c-direccion" placeholder="Calle 123, Barrio"/>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Contacto</label>
+          <input id="c-contacto" placeholder="3512345678"/>
+        </div>
+        <div class="form-group">
+          <label>Capacidad</label>
+          <input type="number" id="c-capacidad" placeholder="3" min="1"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-casa')">Cancelar</button>
+      <button class="btn btn-primary" onclick="guardarCasa()">Guardar casa</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Solicitud de Adopción -->
+<div class="modal-overlay" id="modal-solicitud">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Solicitar Adopción</div>
+      <button class="modal-close" onclick="closeModal('modal-solicitud')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:1rem;color:var(--muted);font-size:0.9rem">
+        Estás solicitando la adopción de <strong id="solicitud-animal-nombre"></strong>.
+        Un rescatista se pondrá en contacto con vos.
+      </p>
+      <div class="form-group">
+        <label>¿Por qué querés adoptar este animal?</label>
+        <textarea id="s-mensaje" placeholder="Contanos un poco sobre vos y tu situación..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-solicitud')">Cancelar</button>
+      <button class="btn btn-primary" onclick="enviarSolicitud()">Enviar solicitud</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Asignar Casa -->
+<div class="modal-overlay" id="modal-asignar">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Asignar Casa de Tránsito</div>
+      <button class="modal-close" onclick="closeModal('modal-asignar')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:1rem;color:var(--muted);font-size:0.9rem">
+        Asignando casa a: <strong id="asignar-animal-nombre"></strong>
+      </p>
+      <div class="form-group">
+        <label>Seleccioná una casa</label>
+        <select id="asignar-casa-select"></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-asignar')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarAsignar()">Asignar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container"></div>
+
+<!-- ═══════════════ JAVASCRIPT ═══════════════ -->
+<script>
+/* ═══════════════════════════════════════════
+   CONFIG — Cambiá USE_MOCK a false cuando tu
+   backend esté corriendo, y ajustá API_BASE.
+═══════════════════════════════════════════ */
+const USE_MOCK = true;           // ← true = datos de prueba | false = API real
+const API_BASE = 'http://localhost:8000/api'; // ← URL de tu backend Laravel
+
+/* ═══════════════════════════════════════════
+   MOCK DATA
+═══════════════════════════════════════════ */
+const MOCK = {
+  animales: [
+    { id:1, nombre:'Mochi', especie:'perro', edad:'2 años', tamano:'mediano', estado:'disponible', zona:'Nueva Córdoba', estado_salud:'Saludable, vacunado y desparasitado. Muy amigable.', rescatista_id:1 },
+    { id:2, nombre:'Luna', especie:'gata', edad:'1 año', tamano:'pequeño', estado:'en_transito', zona:'Alberdi', estado_salud:'Castrada y con todas las vacunas al día.', rescatista_id:1 },
+    { id:3, nombre:'Thor', especie:'perro', edad:'4 años', tamano:'grande', estado:'disponible', zona:'Villa Allende', estado_salud:'En recuperación post-operatoria. Necesita paciencia.', rescatista_id:1 },
+    { id:4, nombre:'Nube', especie:'gata', edad:'3 meses', tamano:'pequeño', estado:'disponible', zona:'Cerro de las Rosas', estado_salud:'Cachorra sana, primera vacuna aplicada.', rescatista_id:1 },
+    { id:5, nombre:'Rocky', especie:'perro', edad:'6 años', tamano:'grande', estado:'adoptado', zona:'Güemes', estado_salud:'Totalmente sano. Ya tiene familia.', rescatista_id:1 },
+  ],
+  publicaciones: [
+    { id:1, rescatista_nombre:'Ana García', texto:'¡Rocky encontró familia! 🎉 Después de 3 meses en tránsito, Rocky fue adoptado por una familia increíble. Esto es lo que nos da fuerzas para seguir.', tipo:'avance', fecha:'2025-05-10', imagen_url:null },
+    { id:2, rescatista_nombre:'Ana García', texto:'URGENTE 🚨 Encontramos a Thor tirado en la calle principal. Necesita casa de tránsito AHORA. Tiene una herida en la pata trasera. Quien pueda ayudar, comuníquese ya.', tipo:'urgente', fecha:'2025-05-08', imagen_url:null },
+    { id:3, rescatista_nombre:'Ana García', texto:'Mochi ya tiene sus vacunas completas y está buscando hogar definitivo. Es un perrito muy cariñoso, ideal para familias con niños. ¡Animese a conocerlo!', tipo:'novedad', fecha:'2025-05-05', imagen_url:null },
+  ],
+  casas: [
+    { id:1, nombre:'Casa de Florencia', direccion:'Chacabuco 540', contacto:'3512001234', capacidad:3, animales_count:1 },
+    { id:2, nombre:'Hogar de los López', direccion:'Av. Colón 1200', contacto:'3518765432', capacidad:2, animales_count:0 },
+    { id:3, nombre:'Casa de María', direccion:'Belgrano 890', contacto:'3516543210', capacidad:4, animales_count:2 },
+  ],
+  solicitudes: [
+    { id:1, animal_nombre:'Mochi', adoptante_nombre:'Carlos Pérez', fecha:'2025-05-09', estado:'pendiente', animal_id:1 },
+    { id:2, animal_nombre:'Luna', adoptante_nombre:'Sofía Torres', fecha:'2025-05-07', estado:'aceptada', animal_id:2 },
+    { id:3, animal_nombre:'Nube', adoptante_nombre:'Diego Romero', fecha:'2025-05-10', estado:'pendiente', animal_id:4 },
+  ],
+};
+
+/* ═══════════════════════════════════════════
+   API WRAPPER
+═══════════════════════════════════════════ */
+async function api(method, endpoint, body = null) {
+  if (USE_MOCK) return mockApi(method, endpoint, body);
+
+  const opts = {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    }
+  };
+
+  const token = localStorage.getItem('token');
+  if (token) opts.headers['Authorization'] = `Bearer ${token}`;
+  if (body)  opts.body = JSON.stringify(body);
+
+  try {
+    const res = await fetch(API_BASE + endpoint, opts);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || 'Error del servidor');
+    return data;
+  } catch (e) {
+    toast(e.message, 'error');
+    throw e;
+  }
+}
+
+/* ─── Mock API ─── */
+async function mockApi(method, endpoint, body) {
+  await delay(400); // simula latencia
+
+  // AUTH
+  if (endpoint === '/auth/login' && method === 'POST') {
+    return { token: 'mock-token-abc', user: { id:1, nombre: body.email.split('@')[0], email: body.email, rol:'rescatista' }};
+  }
+  if (endpoint === '/auth/register' && method === 'POST') {
+    return { token: 'mock-token-abc', user: { id:2, nombre: body.nombre, email: body.email, rol: body.rol }};
+  }
+
+  // ANIMALES
+  if (endpoint === '/animales' && method === 'GET') return [...MOCK.animales];
+  if (endpoint.match(/^\/animales\/\d+$/) && method === 'GET') {
+    const id = parseInt(endpoint.split('/')[2]);
+    return MOCK.animales.find(a => a.id === id);
+  }
+  if (endpoint === '/animales' && method === 'POST') {
+    const nuevo = { id: Date.now(), ...body, estado:'disponible' };
+    MOCK.animales.push(nuevo);
+    return nuevo;
+  }
+  if (endpoint.match(/^\/animales\/\d+$/) && method === 'PUT') {
+    const id = parseInt(endpoint.split('/')[2]);
+    const idx = MOCK.animales.findIndex(a => a.id === id);
+    if (idx !== -1) MOCK.animales[idx] = { ...MOCK.animales[idx], ...body };
+    return MOCK.animales[idx];
+  }
+
+  // PUBLICACIONES
+  if (endpoint === '/publicaciones' && method === 'GET') return [...MOCK.publicaciones];
+  if (endpoint === '/publicaciones' && method === 'POST') {
+    const nueva = { id: Date.now(), rescatista_nombre: appState.user.nombre, fecha: new Date().toISOString().split('T')[0], ...body };
+    MOCK.publicaciones.unshift(nueva);
+    return nueva;
+  }
+
+  // CASAS
+  if (endpoint === '/casas-transito' && method === 'GET') return [...MOCK.casas];
+  if (endpoint === '/casas-transito' && method === 'POST') {
+    const nueva = { id: Date.now(), animales_count:0, ...body };
+    MOCK.casas.push(nueva);
+    return nueva;
+  }
+
+  // SOLICITUDES
+  if (endpoint === '/solicitudes-adopcion' && method === 'GET') return [...MOCK.solicitudes];
+  if (endpoint === '/solicitudes-adopcion' && method === 'POST') {
+    const nueva = { id: Date.now(), adoptante_nombre: appState.user.nombre, fecha: new Date().toISOString().split('T')[0], estado:'pendiente', ...body };
+    MOCK.solicitudes.push(nueva);
+    return nueva;
+  }
+  if (endpoint.match(/^\/solicitudes-adopcion\/\d+$/) && method === 'PUT') {
+    const id = parseInt(endpoint.split('/')[2]);
+    const idx = MOCK.solicitudes.findIndex(s => s.id === id);
+    if (idx !== -1) MOCK.solicitudes[idx] = { ...MOCK.solicitudes[idx], ...body };
+    return MOCK.solicitudes[idx];
+  }
+
+  return {};
+}
+
+const delay = ms => new Promise(r => setTimeout(r, ms));
+
+/* ═══════════════════════════════════════════
+   APP STATE
+═══════════════════════════════════════════ */
+let appState = {
+  user: null,
+  animales: [],
+  currentAnimalId: null, // para solicitud / asignar
+};
+
+/* ═══════════════════════════════════════════
+   AUTH
+═══════════════════════════════════════════ */
+function switchAuthTab(tab) {
+  document.querySelectorAll('.login-tab').forEach((t,i) => t.classList.toggle('active', (tab==='login' && i===0) || (tab==='register' && i===1)));
+  document.getElementById('auth-login').style.display    = tab === 'login'    ? '' : 'none';
+  document.getElementById('auth-register').style.display = tab === 'register' ? '' : 'none';
+}
+
+async function doLogin() {
+  const email    = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  if (!email) { toast('Ingresá un email', 'error'); return; }
+
+  try {
+    const data = await api('POST', '/auth/login', { email, password });
+    iniciarSesion(data);
+  } catch(e) { /* ya manejado */ }
+}
+
+async function doRegister() {
+  const nombre   = document.getElementById('reg-nombre').value.trim();
+  const email    = document.getElementById('reg-email').value.trim();
+  const telefono = document.getElementById('reg-telefono').value.trim();
+  const rol      = document.getElementById('reg-rol').value;
+  const password = document.getElementById('reg-password').value;
+  const dni      = document.getElementById('reg-dni').value.trim();
+
+  if (!nombre || !email || !password) { toast('Completá los campos obligatorios', 'error'); return; }
+
+  try {
+    const data = await api('POST', '/auth/register', { nombre, email, telefono, rol, password, dni });
+    iniciarSesion(data);
+  } catch(e) {}
+}
+
+function iniciarSesion(data) {
+  appState.user = data.user;
+  if (!USE_MOCK) localStorage.setItem('token', data.token);
+
+  document.getElementById('login-page').style.display  = 'none';
+  document.getElementById('app-shell').style.display   = '';
+  document.getElementById('nav-username').textContent  = data.user.nombre;
+  document.getElementById('nav-rol').textContent       = data.user.rol;
+
+  // Mostrar/ocultar tabs según rol
+  const esRescatista = data.user.rol === 'rescatista';
+  document.querySelectorAll('.rescatista-only').forEach(el => el.style.display = esRescatista ? '' : 'none');
+  document.querySelectorAll('.adoptante-only').forEach(el => el.style.display = esRescatista ? 'none' : '');
+
+  // Cargar primer tab
+  cargarAnimales();
+  toast(`¡Bienvenido, ${data.user.nombre}!`, 'success');
+}
+
+function doLogout() {
+  appState.user = null;
+  localStorage.removeItem('token');
+  document.getElementById('login-page').style.display = '';
+  document.getElementById('app-shell').style.display = 'none';
+}
+
+/* ═══════════════════════════════════════════
+   NAVEGACIÓN
+═══════════════════════════════════════════ */
+function goTo(seccion) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+
+  document.getElementById('page-' + seccion).classList.add('active');
+  document.querySelectorAll('.nav-tab').forEach(t => {
+    if (t.textContent.toLowerCase().includes(seccion.replace('-',' ').split(' ')[0].toLowerCase())) t.classList.add('active');
+  });
+
+  // Cargar datos si no se cargaron
+  if (seccion === 'animales') cargarAnimales();
+  if (seccion === 'feed') cargarFeed();
+  if (seccion === 'casas') cargarCasas();
+  if (seccion === 'solicitudes') cargarSolicitudes();
+  if (seccion === 'mis-solicitudes') cargarMisSolicitudes();
+  if (seccion === 'perfil') cargarPerfil();
+}
+
+/* ═══════════════════════════════════════════
+   ANIMALES
+═══════════════════════════════════════════ */
+async function cargarAnimales() {
+  document.getElementById('grid-animales').innerHTML = '<div class="spinner"></div>';
+  try {
+    appState.animales = await api('GET', '/animales');
+    renderAnimales(appState.animales);
+    actualizarStats();
+  } catch(e) {}
+}
+
+function actualizarStats() {
+  const a = appState.animales;
+  document.getElementById('stat-total').textContent      = a.length;
+  document.getElementById('stat-disponible').textContent = a.filter(x => x.estado === 'disponible').length;
+  document.getElementById('stat-transito').textContent   = a.filter(x => x.estado === 'en_transito').length;
+  document.getElementById('stat-adoptado').textContent   = a.filter(x => x.estado === 'adoptado').length;
+}
+
+function filtrarAnimales() {
+  const nombre  = document.getElementById('filtro-nombre').value.toLowerCase();
+  const especie = document.getElementById('filtro-especie').value;
+  const estado  = document.getElementById('filtro-estado').value;
+
+  const filtrados = appState.animales.filter(a =>
+    (!nombre  || a.nombre.toLowerCase().includes(nombre)) &&
+    (!especie || a.especie === especie) &&
+    (!estado  || a.estado  === estado)
+  );
+
+  renderAnimales(filtrados);
+}
+
+function renderAnimales(lista) {
+  const grid = document.getElementById('grid-animales');
+  const esRescatista = appState.user?.rol === 'rescatista';
+
+  if (!lista.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🔍</div><p>No se encontraron animales</p></div>`;
+    return;
+  }
+
+  const emojis = { perro:'🐶', gato:'🐱', otro:'🐾' };
+  const badgeEstado = { disponible:'badge-available', en_transito:'badge-transito', adoptado:'badge-adoptado' };
+  const labelEstado = { disponible:'Disponible', en_transito:'En tránsito', adoptado:'Adoptado' };
+
+  grid.innerHTML = lista.map(a => `
+    <div class="card">
+      <div class="animal-card-img">
+        ${emojis[a.especie] || '🐾'}
+        <span class="animal-card-status">
+          <span class="badge ${badgeEstado[a.estado]}">${labelEstado[a.estado]}</span>
+        </span>
+      </div>
+      <div class="card-body">
+        <div class="animal-name">${a.nombre}</div>
+        <div class="animal-meta">
+          <span>${capitalizar(a.especie)}</span>
+          <span>${a.edad || '—'}</span>
+          <span>${capitalizar(a.tamano)}</span>
+          <span>📍 ${a.zona || '—'}</span>
+        </div>
+        <p style="font-size:0.82rem;color:var(--muted);line-height:1.5">${(a.estado_salud||'').substring(0,90)}${(a.estado_salud||'').length>90?'…':''}</p>
+        <div class="animal-actions">
+          ${!esRescatista && a.estado === 'disponible' ? `<button class="btn btn-primary btn-sm" onclick="abrirSolicitud(${a.id},'${a.nombre}')">Solicitar adopción</button>` : ''}
+          ${esRescatista ? `
+            <button class="btn btn-secondary btn-sm" onclick="abrirAsignar(${a.id},'${a.nombre}')">🏠 Asignar casa</button>
+            <button class="btn btn-secondary btn-sm" onclick="cambiarEstado(${a.id},'${a.estado}')">⚙ Estado</button>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openModalAnimal() { openModal('modal-animal'); }
+
+async function guardarAnimal() {
+  const body = {
+    nombre:       document.getElementById('a-nombre').value.trim(),
+    especie:      document.getElementById('a-especie').value,
+    edad:         document.getElementById('a-edad').value.trim(),
+    tamano:       document.getElementById('a-tamano').value,
+    zona:         document.getElementById('a-zona').value.trim(),
+    estado_salud: document.getElementById('a-salud').value.trim(),
+    rescatista_id: appState.user.id,
+  };
+
+  if (!body.nombre) { toast('El nombre es obligatorio', 'error'); return; }
+
+  try {
+    await api('POST', '/animales', body);
+    closeModal('modal-animal');
+    toast('Animal registrado correctamente ✓', 'success');
+    document.getElementById('a-nombre').value = '';
+    document.getElementById('a-salud').value  = '';
+    cargarAnimales();
+  } catch(e) {}
+}
+
+async function cambiarEstado(id, estadoActual) {
+  const estados = ['disponible', 'en_transito', 'adoptado'];
+  const siguiente = estados[(estados.indexOf(estadoActual) + 1) % estados.length];
+  try {
+    await api('PUT', `/animales/${id}`, { estado: siguiente });
+    toast(`Estado cambiado a "${siguiente}"`, 'info');
+    cargarAnimales();
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   FEED / PUBLICACIONES
+═══════════════════════════════════════════ */
+async function cargarFeed() {
+  document.getElementById('feed-container').innerHTML = '<div class="spinner"></div>';
+  try {
+    const pubs = await api('GET', '/publicaciones');
+    renderFeed(pubs);
+  } catch(e) {}
+}
+
+function renderFeed(pubs) {
+  const container = document.getElementById('feed-container');
+  if (!pubs.length) {
+    container.innerHTML = `<div class="empty-state"><div class="icon">📭</div><p>No hay publicaciones aún</p></div>`;
+    return;
+  }
+
+  const tipoBadge = { urgente:'badge-urgente', avance:'badge-disponible', novedad:'badge-transito' };
+  const tipoLabel = { urgente:'🚨 Urgente', avance:'✨ Avance', novedad:'📢 Novedad' };
+
+  container.innerHTML = pubs.map(p => `
+    <div class="post-card">
+      <div class="post-header">
+        <div class="post-avatar">${(p.rescatista_nombre||'?')[0].toUpperCase()}</div>
+        <div>
+          <div class="post-author">${p.rescatista_nombre || 'Rescatista'}</div>
+          <div class="post-date">${formatFecha(p.fecha)}</div>
+        </div>
+        <div class="post-tipo">
+          <span class="badge ${tipoBadge[p.tipo] || 'badge-transito'}">${tipoLabel[p.tipo] || p.tipo}</span>
+        </div>
+      </div>
+      ${p.imagen_url ? `<div class="post-img" style="height:220px;background:url(${p.imagen_url}) center/cover"></div>` : ''}
+      <div class="post-body">${p.texto}</div>
+      <div class="post-footer">Publicado el ${formatFecha(p.fecha)}</div>
+    </div>
+  `).join('');
+}
+
+function openModalPost() { openModal('modal-post'); }
+
+async function guardarPost() {
+  const body = {
+    texto:     document.getElementById('p-texto').value.trim(),
+    tipo:      document.getElementById('p-tipo').value,
+    imagen_url:document.getElementById('p-imagen').value.trim() || null,
+    rescatista_id: appState.user.id,
+  };
+
+  if (!body.texto) { toast('El texto es obligatorio', 'error'); return; }
+
+  try {
+    await api('POST', '/publicaciones', body);
+    closeModal('modal-post');
+    toast('Publicación creada ✓', 'success');
+    document.getElementById('p-texto').value  = '';
+    document.getElementById('p-imagen').value = '';
+    cargarFeed();
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   CASAS DE TRÁNSITO
+═══════════════════════════════════════════ */
+async function cargarCasas() {
+  document.getElementById('grid-casas').innerHTML = '<div class="spinner"></div>';
+  try {
+    const casas = await api('GET', '/casas-transito');
+    renderCasas(casas);
+  } catch(e) {}
+}
+
+function renderCasas(casas) {
+  const grid = document.getElementById('grid-casas');
+  if (!casas.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="icon">🏠</div><p>No hay casas registradas</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = casas.map(c => {
+    const disponibilidad = (c.capacidad - (c.animales_count || 0));
+    const pct = Math.round(((c.animales_count||0) / Math.max(c.capacidad,1)) * 100);
+    return `
+      <div class="card">
+        <div class="card-body">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1rem">
+            <div style="width:48px;height:48px;background:var(--warm);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.5rem">🏠</div>
+            <div>
+              <div style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:600;color:var(--brown)">${c.nombre}</div>
+              <div style="font-size:0.8rem;color:var(--muted)">📍 ${c.direccion || '—'}</div>
+            </div>
+          </div>
+          <div style="margin-bottom:0.75rem">
+            <div style="display:flex;justify-content:space-between;font-size:0.8rem;color:var(--muted);margin-bottom:0.3rem">
+              <span>Ocupación</span>
+              <span>${c.animales_count||0} / ${c.capacidad}</span>
+            </div>
+            <div style="height:6px;background:var(--warm);border-radius:3px;overflow:hidden">
+              <div style="height:100%;width:${pct}%;background:${pct>80?'var(--terracota)':'var(--sage)'};border-radius:3px;transition:width 0.5s"></div>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font-size:0.82rem;color:var(--muted)">📞 ${c.contacto || '—'}</span>
+            <span class="badge ${disponibilidad > 0 ? 'badge-available' : 'badge-rechazada'}">${disponibilidad > 0 ? `${disponibilidad} lugar${disponibilidad>1?'es':''} libre${disponibilidad>1?'s':''}` : 'Sin lugar'}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function openModalCasa() { openModal('modal-casa'); }
+
+async function guardarCasa() {
+  const body = {
+    nombre:    document.getElementById('c-nombre').value.trim(),
+    direccion: document.getElementById('c-direccion').value.trim(),
+    contacto:  document.getElementById('c-contacto').value.trim(),
+    capacidad: parseInt(document.getElementById('c-capacidad').value) || 1,
+    rescatista_id: appState.user.id,
+  };
+
+  if (!body.nombre) { toast('El nombre es obligatorio', 'error'); return; }
+
+  try {
+    await api('POST', '/casas-transito', body);
+    closeModal('modal-casa');
+    toast('Casa registrada correctamente ✓', 'success');
+    cargarCasas();
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   SOLICITUDES (rescatista ve todas)
+═══════════════════════════════════════════ */
+async function cargarSolicitudes() {
+  document.getElementById('tbody-solicitudes').innerHTML = '<tr><td colspan="5"><div class="spinner"></div></td></tr>';
+  try {
+    const sols = await api('GET', '/solicitudes-adopcion');
+    renderSolicitudes(sols);
+  } catch(e) {}
+}
+
+function renderSolicitudes(sols) {
+  const tbody = document.getElementById('tbody-solicitudes');
+  if (!sols.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="icon">📋</div><p>Sin solicitudes recibidas</p></div></td></tr>';
+    return;
+  }
+
+  const badgeMap = { pendiente:'badge-pendiente', aceptada:'badge-aceptada', rechazada:'badge-rechazada' };
+
+  tbody.innerHTML = sols.map(s => `
+    <tr>
+      <td><strong>${s.animal_nombre || '—'}</strong></td>
+      <td>${s.adoptante_nombre || '—'}</td>
+      <td>${formatFecha(s.fecha)}</td>
+      <td><span class="badge ${badgeMap[s.estado]}">${capitalizar(s.estado)}</span></td>
+      <td>
+        ${s.estado === 'pendiente' ? `
+          <button class="btn btn-success btn-sm" onclick="gestionarSolicitud(${s.id},'aceptada')">Aceptar</button>
+          <button class="btn btn-danger btn-sm" onclick="gestionarSolicitud(${s.id},'rechazada')" style="margin-left:0.25rem">Rechazar</button>
+        ` : '—'}
+      </td>
+    </tr>
+  `).join('');
+}
+
+async function gestionarSolicitud(id, estado) {
+  try {
+    await api('PUT', `/solicitudes-adopcion/${id}`, { estado });
+    toast(`Solicitud ${estado} ✓`, 'success');
+    cargarSolicitudes();
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   SOLICITUDES (adoptante ve las suyas)
+═══════════════════════════════════════════ */
+async function cargarMisSolicitudes() {
+  document.getElementById('tbody-mis-solicitudes').innerHTML = '<tr><td colspan="3"><div class="spinner"></div></td></tr>';
+  try {
+    const sols = await api('GET', '/solicitudes-adopcion');
+    const misSols = sols.filter(s => s.adoptante_id === appState.user?.id || USE_MOCK);
+    const tbody = document.getElementById('tbody-mis-solicitudes');
+    const badgeMap = { pendiente:'badge-pendiente', aceptada:'badge-aceptada', rechazada:'badge-rechazada' };
+    tbody.innerHTML = misSols.length ? misSols.map(s => `
+      <tr>
+        <td><strong>${s.animal_nombre || '—'}</strong></td>
+        <td>${formatFecha(s.fecha)}</td>
+        <td><span class="badge ${badgeMap[s.estado]}">${capitalizar(s.estado)}</span></td>
+      </tr>
+    `).join('') : '<tr><td colspan="3"><div class="empty-state"><p>No enviaste solicitudes aún</p></div></td></tr>';
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   ADOPCIÓN (formulario desde card de animal)
+═══════════════════════════════════════════ */
+function abrirSolicitud(animalId, nombre) {
+  appState.currentAnimalId = animalId;
+  document.getElementById('solicitud-animal-nombre').textContent = nombre;
+  document.getElementById('s-mensaje').value = '';
+  openModal('modal-solicitud');
+}
+
+async function enviarSolicitud() {
+  const mensaje = document.getElementById('s-mensaje').value.trim();
+  try {
+    await api('POST', '/solicitudes-adopcion', {
+      animal_id:   appState.currentAnimalId,
+      adoptante_id: appState.user.id,
+      animal_nombre: appState.animales.find(a => a.id === appState.currentAnimalId)?.nombre,
+      mensaje,
+    });
+    closeModal('modal-solicitud');
+    toast('¡Solicitud enviada! El rescatista te contactará pronto 🐾', 'success');
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   ASIGNAR CASA
+═══════════════════════════════════════════ */
+async function abrirAsignar(animalId, nombre) {
+  appState.currentAnimalId = animalId;
+  document.getElementById('asignar-animal-nombre').textContent = nombre;
+  try {
+    const casas = await api('GET', '/casas-transito');
+    const sel = document.getElementById('asignar-casa-select');
+    sel.innerHTML = casas.map(c => `<option value="${c.id}">${c.nombre} (${c.animales_count||0}/${c.capacidad})</option>`).join('');
+    openModal('modal-asignar');
+  } catch(e) {}
+}
+
+async function confirmarAsignar() {
+  const casaId = document.getElementById('asignar-casa-select').value;
+  try {
+    await api('PUT', `/animales/${appState.currentAnimalId}`, { casa_transito_id: casaId, estado: 'en_transito' });
+    closeModal('modal-asignar');
+    toast('Animal asignado a casa de tránsito ✓', 'success');
+    cargarAnimales();
+  } catch(e) {}
+}
+
+/* ═══════════════════════════════════════════
+   PERFIL
+═══════════════════════════════════════════ */
+function cargarPerfil() {
+  const u = appState.user;
+  document.getElementById('p-nombre').textContent   = u?.nombre || '—';
+  document.getElementById('p-email').textContent    = u?.email || '—';
+  document.getElementById('p-telefono').textContent = u?.telefono || '—';
+  document.getElementById('p-rol').innerHTML        = `<span class="badge badge-${u?.rol}">${capitalizar(u?.rol||'')}</span>`;
+}
+
+function toggleEditPerfil() {
+  const v = document.getElementById('perfil-view');
+  const e = document.getElementById('perfil-edit');
+  if (v.style.display === 'none') {
+    v.style.display = '';
+    e.style.display = 'none';
+  } else {
+    document.getElementById('edit-nombre').value    = appState.user?.nombre || '';
+    document.getElementById('edit-telefono').value  = appState.user?.telefono || '';
+    v.style.display = 'none';
+    e.style.display = '';
+  }
+}
+
+async function guardarPerfil() {
+  const nombre   = document.getElementById('edit-nombre').value.trim();
+  const telefono = document.getElementById('edit-telefono').value.trim();
+  appState.user.nombre   = nombre;
+  appState.user.telefono = telefono;
+  document.getElementById('nav-username').textContent = nombre;
+  toggleEditPerfil();
+  cargarPerfil();
+  toast('Perfil actualizado ✓', 'success');
+}
+
+async function guardarBancario() {
+  const alias = document.getElementById('edit-alias').value.trim();
+  const cbu   = document.getElementById('edit-cbu').value.trim();
+  if (!alias && !cbu) { toast('Ingresá alias o CBU', 'error'); return; }
+  toast('Datos bancarios guardados ✓', 'success');
+}
+
+/* ═══════════════════════════════════════════
+   MODALES (helpers)
+═══════════════════════════════════════════ */
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+document.querySelectorAll('.modal-overlay').forEach(overlay => {
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.classList.remove('open'); });
+});
+
+/* ═══════════════════════════════════════════
+   TOAST
+═══════════════════════════════════════════ */
+function toast(msg, type = 'info') {
+  const icons = { success:'✓', error:'✕', info:'ℹ' };
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span>${icons[type]}</span> ${msg}`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3500);
+}
+
+/* ═══════════════════════════════════════════
+   UTILS
+═══════════════════════════════════════════ */
+function capitalizar(str) {
+  if (!str) return '';
+  return str.charAt(0).toUpperCase() + str.slice(1).replace('_', ' ');
+}
+
+function formatFecha(str) {
+  if (!str) return '—';
+  try {
+    return new Date(str).toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+  } catch { return str; }
+}
+</script>
+</body>
+</html>
